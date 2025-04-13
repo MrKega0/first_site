@@ -1,0 +1,74 @@
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: black;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+.card {
+    position: relative;
+    z-index: 1;
+    background: #1f1f1f;
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.05);
+    max-width: 600px;
+    margin: 10vh auto;
+    text-align: center;
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+    opacity: 0;
+    transform: translateY(30px);
+    }
+    to {
+    opacity: 1;
+    transform: translateY(0);
+    }
+}
+
+h1 {
+    color: #4e9af1;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    font-weight: normal;
+    color: #aaa;
+    margin-bottom: 1.5rem;
+}
+
+p {
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+.socials {
+    margin-top: 2rem;
+}
+
+.socials a {
+    margin: 0 10px;
+    color: #72bfff;
+    text-decoration: none;
+    font-size: 1.4rem;
+    transition: color 0.3s ease;
+}
+
+.socials a:hover {
+    color: #ff7b7b;
+}

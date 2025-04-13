@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Обо мне</title>
+  <link rel="stylesheet" href="{% static '/css/about-me.css' %}">
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="card">
+  <h1>Привет!👋</h1>
+  <h2>Я Данила</h2>
+  <p>
+    Я — студент, увлекаюсь программированием, занимаюсь проектами на Python, работаю с Django, SQLite и PyQt5. 
+    Также планирую добавить ИИ в свои проекты. Люблю создавать красивые и полезные веб-приложения.
+  </p>
+
+  <div class="socials">
+    <a href="https://github.com/MrKega0/" target="_blank">GitHub</a>
+    <a href="https://t.me/MrKega0" target="_blank">Telegram</a>
+    <a href="/">Главная</a>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+
+  const mouse = { x: null, y: null, down: false };
+
+  window.addEventListener('mousemove', e => {
+    mouse.x = e.x;
+    mouse.y = e.y;
+  });
+
+  window.addEventListener('mousedown', () => mouse.down = true);
+  window.addEventListener('mouseup', () => mouse.down = false);
+
+  const GRAVITY = 0.01;
+  const MAX_SPEED = 0.8;
+
+  class Dot {
+    constructor(x, y, radius = Math.random() * 2 + 1) {
+      this.x = x || Math.random() * canvas.width;
+      this.y = y || Math.random() * canvas.height;
+      this.radius = radius;
+      this.mass = this.radius ** 2;
+      this.vx = 0;
+      this.vy = Math.random() * 0.5 + 0.5;
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    applyForce(fx, fy) {
+      this.vx += fx / this.mass;
+      this.vy += fy / this.mass;
+    }
+
+    interact() {
+      if (mouse.x === null || mouse.y === null) return;
+
+      const dx = this.x - mouse.x;
+      const dy = this.y - mouse.y;
+      const distSq = dx * dx + dy * dy;
+
+      if (distSq < 40000 && distSq > 10) {
+        const direction = mouse.down ? -1 : 1;
+        const force = direction * 100 / distSq;
+        const angle = Math.atan2(dy, dx);
+        const fx = Math.cos(angle) * force;
+        const fy = Math.sin(angle) * force;
+        this.applyForce(fx, fy);
+      }
+    }
+
+    update() {
+      this.interact();
+
+      // гравитация
+      this.applyForce(0, GRAVITY * this.mass);
+
+      // ограничение скорости
+      const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+      if (speed > MAX_SPEED) {
+        const scale = MAX_SPEED / speed;
+        this.vx *= scale;
+        this.vy *= scale;
+      }
+
+      this.x += this.vx;
+      this.y += this.vy;
+
+      if (this.y > canvas.height) {
+        this.resetTop();
+      }
+
+      this.draw();
+    }
+
+    resetTop() {
+      this.x = Math.random() * canvas.width;
+      this.y = 0;
+      this.vx = 0;
+      this.vy = Math.random() * 0.5 + 0.5;
+    }
+
+    isCollidingWith(other) {
+      const dx = this.x - other.x;
+      const dy = this.y - other.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < this.radius + other.radius;
+    }
+
+    absorb(other) {
+      const totalMass = this.mass + other.mass;
+      this.vx = (this.vx * this.mass + other.vx * other.mass) / totalMass;
+      this.vy = (this.vy * this.mass + other.vy * other.mass) / totalMass;
+      this.mass = totalMass;
+      this.radius = Math.sqrt(this.mass);
+    }
+  }
+
+  let dots = [];
+  for (let i = 0; i < 120; i++) {
+    dots.push(new Dot());
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // столкновения
+    for (let i = 0; i < dots.length; i++) {
+      for (let j = i + 1; j < dots.length; j++) {
+        const a = dots[i];
+        const b = dots[j];
+        if (a.isCollidingWith(b)) {
+          a.absorb(b);
+          dots.splice(j, 1);
+          j--;
+        }
+      }
+    }
+
+    dots.forEach(dot => dot.update());
+
+    while (dots.length < 120) {
+      dots.push(new Dot());
+    }
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  });
+</script>
+
+</body>
+</html>
