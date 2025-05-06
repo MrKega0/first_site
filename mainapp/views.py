@@ -1,9 +1,12 @@
 from django.shortcuts import render, HttpResponse
-
+from .models import Genre
 # Create your views here.
 def index(request):
     request.session['a'] = 'a'
-    return render(request, "mainapp/index.html")
+    Genre.objects.all()[0]
+    print(Genre.objects.all()[0].name)
+    context = {'genres':Genre.objects.all()}
+    return render(request, "mainapp/index.html", context)
 
 def about_me(request):
     return render(request, "mainapp/about_me.html")
