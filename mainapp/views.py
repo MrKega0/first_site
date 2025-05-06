@@ -1,11 +1,11 @@
 from django.shortcuts import render, HttpResponse
-from .models import Genre
+from .models import Genre, Game
 # Create your views here.
 def index(request):
     request.session['a'] = 'a'
-    Genre.objects.all()[0]
-    print(Genre.objects.all()[0].name)
-    context = {'genres':Genre.objects.all()}
+    games = Game.objects.filter(name__contains='Hoi')
+    # games = Game.objects.all()
+    context = {'genres':Genre.objects.all(), 'games': games}
     return render(request, "mainapp/index.html", context)
 
 def about_me(request):

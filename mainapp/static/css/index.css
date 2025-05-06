@@ -1,0 +1,9 @@
+.game-container{
+    display: flex;
+}
+.game{
+    width: 30%;
+}
+.game img{
+    width: 300px;
+}

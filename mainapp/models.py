@@ -11,4 +11,6 @@ class Game(models.Model):
     name = models.CharField(max_length=255)
     genre = models.ForeignKey(Genre,on_delete=models.CASCADE)
     img = models.ImageField(upload_to ='game_img/')
+    def __str__(self):
+        return f"{self.id}. {self.name} | {self.genre.name}"
 
