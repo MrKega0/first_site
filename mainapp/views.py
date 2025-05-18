@@ -3,8 +3,12 @@ from .models import Genre, Game
 # Create your views here.
 def index(request):
     request.session['a'] = 'a'
-    games = Game.objects.filter(name__contains='')
-    # games = Game.objects.all()
+    genre = request.GET.get('genre')
+    print(f"Genre = {genre}")
+    games = Game.objects.all()
+    if genre:
+        games = Game.objects.filter(genre_id=genre)
+
     context = {'genres':Genre.objects.all(), 'games': games}
     return render(request, "mainapp/index.html", context)
 

@@ -11,23 +11,34 @@
     <h1>
         "Это главная"
     </h1>
-    <a href="/about-me/">Обо мне</a>
-    <form action="sp">
+    
+    <div class="about-me-link">
+        <a href="/about-me/">👤 Моя страничка</a>
+    </div>
+
+    <!-- <form action="sp">
         <label for="">Ваше имя</label>
         <input type="text" name="name">
         <input type="text" name="last_name">
         <input type="submit">
     </form>
-    <a href="/sp/">Sp</a>
-    {% for genre in genres %}
-        {{genre}}
-    {% endfor %}
+    <a href="/sp/">Sp</a> -->
+    
+    <div class="genre-container">
+        {% for genre in genres %}
+            <a href="/?genre={{ genre.id }}">{{ genre }}</a>
+        {% endfor %}
+        <a href="/">Сбросить фильтр</a>
+    </div>
+
     <div class="game-container">
     {% for game in games %}
         <div class="game">
             <h2>{{game.name}}</h2>
             <p>{{game.genre.name}}</p>
-            <img src="{{game.img.url}}" alt="">
+            
+            <img class="game-img" src="{{game.img.url}}" alt="{{game.name}}">
+            
         </div>
     {% endfor %}
     
