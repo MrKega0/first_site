@@ -2,9 +2,10 @@ from django.shortcuts import render, HttpResponse
 from .models import Genre, Game
 # Create your views here.
 def index(request):
-    request.session['a'] = 'a'
+    # request.session['a'] = 'a'
     genre = request.GET.get('genre')
-    print(f"Genre = {genre}")
+    genre = request.GET.get('genre')
+    # print(f"Genre = {genre}")
     games = Game.objects.all()
     if genre:
         games = Game.objects.filter(genre_id=genre)
