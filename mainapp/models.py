@@ -13,4 +13,7 @@ class Game(models.Model):
     img = models.ImageField(upload_to ='game_img/')
     def __str__(self):
         return f"{self.id}. {self.name} | {self.genre.name}"
+    
+class Comment(models.Model):
+    pass
 
