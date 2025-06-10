@@ -19,7 +19,6 @@ def login(request):
     return render(request, 'userapp/login.html',context)
 
 def profile(request):
-
     context = {}
     return render(request,'userapp/profile.html',context)
 
@@ -33,3 +32,7 @@ def registration(request):
             return HttpResponseRedirect("/user/login/")
     context = {'register_form': register_form}
     return render(request, 'userapp/registration.html',context)
+
+def logout_view(request):
+    auth.logout(request)
+    return HttpResponseRedirect("/")

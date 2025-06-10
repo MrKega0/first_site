@@ -1,6 +1,7 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from .models import Genre, Game, Comment
 from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 @login_required
 def index(request):
@@ -43,12 +44,23 @@ def game_info(request, game_id):
                 game = game,
                 content = content
             )
+        return HttpResponseRedirect(request.path)
     
     comments = game.comments.all()
     context = {
-        'game':Game.objects.get(id=game_id),
+        'game':game,
         'comments': comments
     }
     return render(request, "mainapp/game_info.html", context)
     # game = Game.objects.create()
     # game.save()
+
+def add_comment(request):
+    content = request.POST.get("comment_content","").strip()
+    game_id = int(request.POST.get("game_id"))
+    Comment.objects.create(
+        user = request.user,
+        game_id = game_id,
+        content = content
+    )
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

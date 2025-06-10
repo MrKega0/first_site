@@ -16,7 +16,9 @@
         <a href="/about-me/">👤 Моя страничка</a>
     </div>
 
-    {{request.user}}
+    {% if request.user.is_authenticated%}
+        {{request.user}}
+    {% endif %}
 
     <!-- <form action="sp">
         <label for="">Ваше имя</label>

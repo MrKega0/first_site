@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from mainapp.views import index, about_me, sp, game_info
+from mainapp.views import index, about_me, sp, game_info, add_comment
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -10,5 +10,6 @@ urlpatterns = [
     path('', index),
     path('about-me/', about_me),
     path('sp/', sp),
-    path('game/<int:game_id>', game_info)
+    path('game/<int:game_id>', game_info),
+    path('add_comments/',add_comment)
 ]
