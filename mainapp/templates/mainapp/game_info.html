@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static '/css/index.css' %}">
+</head>
+<body>
+
+    <div class="game-info">
+    <h1>{{ game.name }}</h1>
+    <p class="description">{{ game.description }}</p>
+    <img src="{{ game.img.url }}" alt="{{ game.name }}">
+    
+    <div class="comment-form">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="text" name="comment_content" placeholder="Напишите комментарий">
+            <input type="submit" value="Отправить">
+        </form>
+    </div>
+
+    <div class="comment-section">
+        <h2>Комментарии:</h2>
+        {% for comment in comments %}
+            <div class="comment">
+                <strong>{{ comment.user.username }}</strong>:
+                {{ comment.content }}
+                <small>{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+            </div>
+        {% empty %}
+            <p>Комментариев пока нет.</p>
+        {% endfor %}
+    </div>
+</div>
+
+
+</body>
+</html>

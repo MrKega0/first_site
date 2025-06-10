@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse
-from .models import Genre, Game
+from .models import Genre, Game, Comment
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 @login_required
@@ -22,7 +22,7 @@ def about_me(request):
     return render(request, "mainapp/about_me.html")
 
 def sp(request):
-    print(request.session['a'])
+    #print(request.session['a'])
     name = request.GET.get('name')
     last_name = request.GET.get('last_name')
     print(name)
@@ -31,7 +31,24 @@ def sp(request):
     context = {'name':name, 'last_name':last_name }
     return render(request, "mainapp/sp.html", context)
 
+@login_required
 def game_info(request, game_id):
-    print(game_id)
+    game = Game.objects.get(id=game_id)
+
+    if request.method == "POST":
+        content = request.POST.get("comment_content","").strip()
+        if content:
+            Comment.objects.create(
+                user = request.user,
+                game = game,
+                content = content
+            )
+    
+    comments = game.comments.all()
+    context = {
+        'game':Game.objects.get(id=game_id),
+        'comments': comments
+    }
+    return render(request, "mainapp/game_info.html", context)
     # game = Game.objects.create()
     # game.save()

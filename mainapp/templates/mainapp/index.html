@@ -27,7 +27,7 @@
     <a href="/sp/">Sp</a> -->
 
     <form action="" method="get">
-        <input type="text" name="game" placeholder="Что вы хотите найти?">
+        <input type="text" name="game" placeholder={{Comment}}>
         <input type="submit">
     </form>
     
@@ -43,9 +43,10 @@
         <div class="game">
             <h2>{{game.name}}</h2>
             <p>{{game.genre.name}}</p>
-            
+
             <img class="game-img" src="{{game.img.url}}" alt="{{game.name}}">
-            
+
+            <a href="/game/{{ game.id }}" class="details-button">Подробнее</a>
         </div>
     {% endfor %}
     
