@@ -17,7 +17,17 @@
     </div>
 
     {% if request.user.is_authenticated%}
-        {{request.user}}
+        <div class="login-link">
+        <form method="post" action="/user/logout/" style="display:inline;">
+            {{ request.user }}
+            {% csrf_token %}
+            <button type="submit" class="logout-button">Выйти</button>
+        </form>
+    </div>
+    {%else%}
+        <div class="login-link">
+            <a href="/user/login">Войти</a>
+        </div>
     {% endif %}
 
     <!-- <form action="sp">

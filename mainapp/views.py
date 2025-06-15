@@ -1,9 +1,9 @@
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from .models import Genre, Game, Comment
 from django.contrib.auth.decorators import login_required
+from userapp.views import logout_view
 
-# Create your views here.
-@login_required
+
 def index(request):
     # request.session['a'] = 'a'
     genre_filter = request.GET.get('genre')
@@ -22,15 +22,15 @@ def index(request):
 def about_me(request):
     return render(request, "mainapp/about_me.html")
 
-def sp(request):
-    #print(request.session['a'])
-    name = request.GET.get('name')
-    last_name = request.GET.get('last_name')
-    print(name)
-    if not name:
-        name = 'Безымянный лох'
-    context = {'name':name, 'last_name':last_name }
-    return render(request, "mainapp/sp.html", context)
+# def sp(request):
+#     #print(request.session['a'])
+#     name = request.GET.get('name')
+#     last_name = request.GET.get('last_name')
+#     print(name)
+#     if not name:
+#         name = 'Безымянный лох'
+#     context = {'name':name, 'last_name':last_name }
+#     return render(request, "mainapp/sp.html", context)
 
 @login_required
 def game_info(request, game_id):
