@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from .models import Genre, Game, Comment
 from django.contrib.auth.decorators import login_required
+from django.http.response import JsonResponse
 
 # Create your views here.
 @login_required
@@ -56,11 +57,18 @@ def game_info(request, game_id):
     # game.save()
 
 def add_comment(request):
-    content = request.POST.get("comment_content","").strip()
-    game_id = int(request.POST.get("game_id"))
-    Comment.objects.create(
-        user = request.user,
-        game_id = game_id,
-        content = content
-    )
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    print(dict(request.POST.items()))
+    try:
+        content = request.POST.get("comment_content","").strip()
+        print(content)
+        game_id = int(request.POST.get("game_id"))
+        Comment.objects.create(
+            user = request.user,
+            game_id = game_id,
+            content = content
+        )
+        return JsonResponse({"message":'ok'}, status=201)
+    except Exception as e:
+        print(e)
+
+    return JsonResponse({"message":'что то пошло не так'}, status=400)

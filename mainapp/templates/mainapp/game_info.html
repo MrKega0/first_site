@@ -1,44 +1,62 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="{% static '/css/index.css' %}">
-</head>
-<body>
-
+    <link rel="stylesheet" href="{% static '/css/index.css' %}" />
+  </head>
+  <body>
     <div class="game-info">
-    <h1>{{ game.name }}</h1>
-    <p class="description">{{ game.description }}</p>
-    <img src="{{ game.img.url }}" alt="{{ game.name }}">
-    
-    <div class="comment-form">
-        <form action="/add_comments/" method="post">
-            {% csrf_token %}
+      <h1>{{ game.name }}</h1>
+      <p class="description">{{ game.description }}</p>
+      <img src="{{ game.img.url }}" alt="{{ game.name }}" />
 
-            <input type="hidden" name="game_id" value="{{game.id}}">
+      <div class="comment-form">
+        <form action="/add_comments/" method="post" id="comment_form">
+          {% csrf_token %}
 
-            <input type="text" name="comment_content" placeholder="Напишите комментарий">
-            <input type="submit" value="Отправить">
+          <input type="hidden" name="game_id" value="{{game.id}}" />
+
+          <input
+            type="text"
+            name="comment_content"
+            placeholder="Напишите комментарий"
+          />
+          <input type="submit" value="Отправить" id="send_comment" />
         </form>
-    </div>
+      </div>
 
-    <div class="comment-section">
+      <div class="comment-section">
         <h2>Комментарии:</h2>
         {% for comment in comments %}
-            <div class="comment">
-                <strong>{{ comment.user.username }}</strong>:
-                {{ comment.content }}
-                <small>{{ comment.created_at|date:"d.m.Y H:i" }}</small>
-            </div>
+        <div class="comment">
+          <strong>{{ comment.user.username }}</strong>: {{ comment.content }}
+          <small>{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+        </div>
         {% empty %}
-            <p>Комментариев пока нет.</p>
+        <p>Комментариев пока нет.</p>
         {% endfor %}
+      </div>
     </div>
-</div>
-
-
-</body>
+  </body>
+  <script>
+    const button = document.getElementById("send_comment");
+    
+    
+    button.addEventListener("click", function (event) {
+      event.preventDefault();
+      button.value = "setasdasd";
+      //   console.log(event);
+      const form = document.getElementById("comment_form");
+      const form_data = new FormData(form);
+      fetch("/add_comments/", { method: "post", body: form_data })
+        .then((res) => res.json())
+        .then((res) => {
+            console.log(res);
+            alert("Succes")
+        })
+    });
+  </script>
 </html>
