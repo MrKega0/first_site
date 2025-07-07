@@ -239,3 +239,65 @@ form input[type="submit"]:hover {
 .comment-form input[type="submit"]:hover {
     background-color: #2563eb;
 }
+
+.login-link {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 1000;
+}
+
+.login-link a {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.login-link a:hover {
+    background-color: #2563eb;
+}
+
+.logout-button {
+    padding: 8px 16px;
+    margin-left: 10px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #dc2626;
+}
+
+.favorite-button {
+    background-color: #10b981;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.favorite-button:hover {
+    background-color: #059669;
+}
+
+.favorite-button.remove {
+    background-color: #ef4444;
+}
+
+.favorite-button.remove:hover {
+    background-color: #dc2626;
+}

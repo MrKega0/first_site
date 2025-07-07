@@ -1,10 +1,10 @@
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
-from .models import Genre, Game, Comment
+from .models import Genre, Game, Comment, Favorite
 from django.contrib.auth.decorators import login_required
+from userapp.views import logout_view
+
 from django.http.response import JsonResponse
 
-# Create your views here.
-@login_required
 def index(request):
     # request.session['a'] = 'a'
     genre_filter = request.GET.get('genre')
@@ -23,15 +23,15 @@ def index(request):
 def about_me(request):
     return render(request, "mainapp/about_me.html")
 
-def sp(request):
-    #print(request.session['a'])
-    name = request.GET.get('name')
-    last_name = request.GET.get('last_name')
-    print(name)
-    if not name:
-        name = 'Безымянный лох'
-    context = {'name':name, 'last_name':last_name }
-    return render(request, "mainapp/sp.html", context)
+# def sp(request):
+#     #print(request.session['a'])
+#     name = request.GET.get('name')
+#     last_name = request.GET.get('last_name')
+#     print(name)
+#     if not name:
+#         name = 'Безымянный лох'
+#     context = {'name':name, 'last_name':last_name }
+#     return render(request, "mainapp/sp.html", context)
 
 @login_required
 def game_info(request, game_id):
@@ -68,6 +68,26 @@ def add_comment(request):
             content = content
         )
         return JsonResponse({"message":'ok'}, status=201)
+    except Exception as e:
+        print(e)
+
+    return JsonResponse({"message":'что то пошло не так'}, status=400)
+
+def toggle_favorite(request):
+    # print(dict(request.POST.items()))
+    try:
+        game_id = int(request.POST.get("game_id"))
+        game = Game.objects.get(id=game_id)
+
+        fav_qs = Favorite.objects.filter(user=request.user, game=game)
+
+        if not fav_qs.exists():
+            Favorite.objects.create(user=request.user, game=game)
+            return JsonResponse({"message": "Добавлено в избранное", "status": "added"}, status=200)
+        else:
+            fav_qs.delete()
+            return JsonResponse({"message": "Удалено из избранного", "status": "removed"}, status=200)
+
     except Exception as e:
         print(e)
 
