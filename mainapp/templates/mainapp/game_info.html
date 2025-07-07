@@ -13,6 +13,22 @@
       <p class="description">{{ game.description }}</p>
       <img src="{{ game.img.url }}" alt="{{ game.name }}" />
 
+      {% if user.is_authenticated %}
+        <div class="favorite-form">
+          <form id="favorite_form">
+            {% csrf_token %}
+            <input type="hidden" name="game_id" value="{{ game.id }}" />
+            <button type="submit" class="favorite-button" id="favorite_button">
+              {% if game in user.favorites.all %}
+                Удалить из избранного
+              {% else %}
+                Добавить в избранное
+              {% endif %}
+            </button>
+          </form>
+        </div>
+      {% endif %}
+
       <div class="comment-form">
         <form action="/add_comments/" method="post" id="comment_form">
           {% csrf_token %}
@@ -42,21 +58,44 @@
     </div>
   </body>
   <script>
-    const button = document.getElementById("send_comment");
-    
-    
-    button.addEventListener("click", function (event) {
+    const comment_button = document.getElementById("send_comment");
+    comment_button.addEventListener("click", function (event) {
       event.preventDefault();
       button.value = "setasdasd";
       //   console.log(event);
       const form = document.getElementById("comment_form");
       const form_data = new FormData(form);
-      fetch("/add_comments/", { method: "post", body: form_data })
+      fetch("/add_comments/", { method: "POST", body: form_data })
         .then((res) => res.json())
         .then((res) => {
             console.log(res);
-            alert("Succes")
+            alert(res["message"])
         })
+    });
+
+    const favorite_button = document.getElementById("favorite_button");
+    favorite_button.addEventListener("click", function (event) {
+      event.preventDefault();
+      const form = document.getElementById("favorite_form");
+      const form_data = new FormData(form);
+
+      fetch("/toggle_favorite/", {
+        method: "POST",
+        body: form_data,
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          alert(res["message"]);
+
+          // меняем текст кнопки
+          if (res["status"] === "added") {
+            favorite_button.textContent = "Удалить из избранного";
+            favorite_button.classList.add("remove");
+          } else if (res["status"] === "removed") {
+            favorite_button.textContent = "Добавить в избранное";
+            favorite_button.classList.remove("remove");
+          }
+        });
     });
   </script>
 </html>

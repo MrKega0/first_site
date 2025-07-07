@@ -277,3 +277,27 @@ form input[type="submit"]:hover {
 .logout-button:hover {
     background-color: #dc2626;
 }
+
+.favorite-button {
+    background-color: #10b981;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.favorite-button:hover {
+    background-color: #059669;
+}
+
+.favorite-button.remove {
+    background-color: #ef4444;
+}
+
+.favorite-button.remove:hover {
+    background-color: #dc2626;
+}
