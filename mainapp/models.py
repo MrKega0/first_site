@@ -34,8 +34,8 @@ class Comment(models.Model):
         return f"Комментарий от {self.user.username} ({self.created_at:%Y-%m-%d %H:%M})"
     
 class Favorite(models.Model):
-    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="favorites")
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="favorites")
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

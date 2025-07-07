@@ -19,7 +19,7 @@
             {% csrf_token %}
             <input type="hidden" name="game_id" value="{{ game.id }}" />
             <button type="submit" class="favorite-button" id="favorite_button">
-              {% if game in user.favorites.all %}
+              {% if is_fav %}
                 Удалить из избранного
               {% else %}
                 Добавить в избранное

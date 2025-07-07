@@ -36,7 +36,8 @@ def about_me(request):
 @login_required
 def game_info(request, game_id):
     game = Game.objects.get(id=game_id)
-
+    # print(game.id in request.user.favorites.all().values_list("game",flat=True))
+    # print(request.user.favorites.all().filter(game = game).exists())
     if request.method == "POST":
         content = request.POST.get("comment_content","").strip()
         if content:
@@ -50,7 +51,8 @@ def game_info(request, game_id):
     comments = game.comments.all()
     context = {
         'game':game,
-        'comments': comments
+        'comments': comments,
+        'is_fav': request.user.favorites.all().filter(game = game).exists()
     }
     return render(request, "mainapp/game_info.html", context)
     # game = Game.objects.create()
