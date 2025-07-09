@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Рекомендованные игры</title>
+  <link rel="stylesheet" href="{% static 'css/index.css' %}" />
+</head>
+<body>
+  <div class="recommended-page">
+    <h1>🎮 Рекомендованные игры для вас</h1>
+
+    {% if recommended_games %}
+      <div class="game-container">
+        {% for game in recommended_games %}
+          <div class="game">
+            <h2>{{ game.name }}</h2>
+            {% if game.genre %}
+              <p>{{ game.genre.name }}</p>
+            {% endif %}
+            {% if game.img %}
+              <img class="game-img" src="{{ game.img.url }}" alt="{{ game.name }}">
+            {% else %}
+              <div class="game-placeholder">Нет изображения</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="no-recommendations">Пока нет рекомендаций. Добавьте игры в избранное, и мы подберём что-то интересное!</p>
+    {% endif %}
+  </div>
+</body>
+</html>

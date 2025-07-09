@@ -58,6 +58,9 @@ def game_info(request, game_id):
     # game = Game.objects.create()
     # game.save()
 
+def recommended_games(request):
+    return render(request, "mainapp/recommended_games.html")
+
 def add_comment(request):
     print(dict(request.POST.items()))
     try:
