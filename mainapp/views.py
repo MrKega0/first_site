@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from .models import Genre, Game, Comment, Favorite
 from django.contrib.auth.decorators import login_required
 from userapp.views import logout_view
+from ai_bot.ai_bot import get_recommended_games
 
 from django.http.response import JsonResponse
 
@@ -59,7 +60,14 @@ def game_info(request, game_id):
     # game.save()
 
 def recommended_games(request):
-    return render(request, "mainapp/recommended_games.html")
+    user_favorites = request.user.favorites.all()
+    user_favorites_str = ", ".join([favorite.game.name for favorite in user_favorites])
+    ai_rec_games = get_recommended_games(user_favorites_str)
+    
+    context = {"recommended_games":ai_rec_games}
+    print(ai_rec_games)
+    
+    return render(request, "mainapp/recommended_games.html", context)
 
 def add_comment(request):
     print(dict(request.POST.items()))
