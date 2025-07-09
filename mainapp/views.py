@@ -59,15 +59,21 @@ def game_info(request, game_id):
     # game = Game.objects.create()
     # game.save()
 
+# В recommended_games.html сделать запрос к асинхронной вспомогательной вьюшке
+# которая должна делать запрос ai, получать список рекомендуемых игр,
+# подгружать имеющиеся игры из бд. А отсутствующим играм нужно делать запрос на получение
+# описания и добавлять в бд, а затем подгружать эти игры из бд
 def recommended_games(request):
+    return render(request, "mainapp/recommended_games.html")
+
+# Вспомогательная вьюшка. Сделать асинхронным!
+# Должна возвращать json со всеми рекомендуемыми играми из бд
+def asynh_get_recommended_games(request):
     user_favorites = request.user.favorites.all()
     user_favorites_str = ", ".join([favorite.game.name for favorite in user_favorites])
     ai_rec_games = get_recommended_games(user_favorites_str)
     
-    context = {"recommended_games":ai_rec_games}
-    print(ai_rec_games)
-    
-    return render(request, "mainapp/recommended_games.html", context)
+    return JsonResponse({"recommended_games":ai_rec_games}, status=200)
 
 def add_comment(request):
     print(dict(request.POST.items()))

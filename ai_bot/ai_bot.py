@@ -61,4 +61,3 @@ def get_game_description(game:str)->str:
         ]
     )
     return response.output_text
-
