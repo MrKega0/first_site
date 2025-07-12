@@ -336,3 +336,22 @@ form input[type="submit"]:hover {
     font-style: italic;
     font-size: 1rem;
 }
+
+.game-link {
+  display: inline-block;
+  color: inherit;          /* берёт цвет текста из карточки */
+}
+
+.game-link:hover .game {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.game-link .game {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* убираем подчеркивание */
+.game-link {
+  text-decoration: none;
+}

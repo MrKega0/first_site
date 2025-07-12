@@ -11,25 +11,61 @@
   <div class="recommended-page">
     <h1>🎮 Рекомендованные игры для вас</h1>
 
-    {% if recommended_games %}
-      <div class="game-container">
-        {% for game in recommended_games %}
-          <div class="game">
-            <h2>{{ game.name }}</h2>
-            {% if game.genre %}
-              <p>{{ game.genre.name }}</p>
-            {% endif %}
-            {% if game.img %}
-              <img class="game-img" src="{{ game.img.url }}" alt="{{ game.name }}">
-            {% else %}
-              <div class="game-placeholder">Нет изображения</div>
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p class="no-recommendations">Пока нет рекомендаций. Добавьте игры в избранное, и мы подберём что-то интересное!</p>
-    {% endif %}
+    <div id="status-message">Загрузка рекомендаций...</div>
+
+    <div class="game-container" id="game-container">
+      <!-- Игры будут загружены сюда -->
+    </div>
   </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("/get_recommended_games")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("game-container");
+      const status    = document.getElementById("status-message");
+
+      container.innerHTML = "";
+      status.style.display = "none";
+
+      if (!data.recommended_games || data.recommended_games.length === 0) {
+        status.textContent = "Пока нет рекомендаций.";
+        status.style.display = "block";
+        return;
+      }
+
+      data.recommended_games.forEach(game => {
+        // создаём ссылку на detail
+        const link = document.createElement("a");
+        link.href = `/game/${game.id}`;          // здесь id из JSON
+        link.className = "game-link";
+        link.style.textDecoration = "none";
+
+        // создаём саму карточку
+        const card = document.createElement("div");
+        card.className = "game";
+
+        card.innerHTML = `
+          <h2>${game.name}</h2>
+          <p>${game.genre.name}</p>
+          ${game.img
+            ? `<img class="game-img" src="${game.img}" alt="${game.name}">`
+            : `<div class="game-placeholder">Нет изображения</div>`}
+        `;
+
+        // вложим карточку в ссылку
+        link.appendChild(card);
+        container.appendChild(link);
+      });
+    })
+    .catch(err => {
+      const status = document.getElementById("status-message");
+      status.textContent = "Ошибка при загрузке рекомендаций.";
+      console.error(err);
+    });
+});
+</script>
+
 </body>
 </html>

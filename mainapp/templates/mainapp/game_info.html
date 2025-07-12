@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="{% static '/css/index.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
   </head>
   <body>
     <div class="game-info">
@@ -18,7 +18,7 @@
           <form id="favorite_form">
             {% csrf_token %}
             <input type="hidden" name="game_id" value="{{ game.id }}" />
-            <button type="submit" class="favorite-button" id="favorite_button">
+            <button type="submit" class="favorite-button{% if is_fav %} remove{% endif %}" id="favorite_button">
               {% if is_fav %}
                 Удалить из избранного
               {% else %}
@@ -61,7 +61,6 @@
     const comment_button = document.getElementById("send_comment");
     comment_button.addEventListener("click", function (event) {
       event.preventDefault();
-      button.value = "setasdasd";
       //   console.log(event);
       const form = document.getElementById("comment_form");
       const form_data = new FormData(form);
@@ -81,6 +80,7 @@
 
       fetch("/toggle_favorite/", {
         method: "POST",
+        credentials: "same-origin",
         body: form_data,
       })
         .then((res) => res.json())

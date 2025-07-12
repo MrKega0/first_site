@@ -2,10 +2,38 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from .models import Genre, Game, Comment, Favorite
 from django.contrib.auth.decorators import login_required
 from userapp.views import logout_view
-from ai_bot.ai_bot import get_recommended_games
-
+from ai_bot.ai_bot import get_recommended_games, get_game_description, get_game_genre
+from asgiref.sync import sync_to_async
 from django.http.response import JsonResponse
+from django.forms.models import model_to_dict
 
+# Асинхронные вспомогательные функции, ну или подобие асинхронности
+@sync_to_async
+def get_user_favorites(user):
+    return list(user.favorites.select_related("game").all())
+
+@sync_to_async
+def find_game_by_name(name):
+    return Game.objects.filter(name__icontains=name).first()
+
+@sync_to_async
+def get_or_create_genre(genre_name):
+    genre, _ = Genre.objects.get_or_create(name__iexact=genre_name, defaults={"name": genre_name})
+    return genre
+
+@sync_to_async
+def create_game(name, genre, description):
+    return Game.objects.create(name=name, genre=genre, description=description)
+
+@sync_to_async
+def serialize_game_obj(game):
+    data = model_to_dict(game, fields=['id','name','description'])
+    data['genre'] = model_to_dict(game.genre, fields=['id','name'])
+    data['img'] = game.img.url if game.img else None
+    return data
+
+
+#Основные вьюшки
 def index(request):
     # request.session['a'] = 'a'
     genre_filter = request.GET.get('genre')
@@ -66,14 +94,27 @@ def game_info(request, game_id):
 def recommended_games(request):
     return render(request, "mainapp/recommended_games.html")
 
-# Вспомогательная вьюшка. Сделать асинхронным!
-# Должна возвращать json со всеми рекомендуемыми играми из бд
-def asynh_get_recommended_games(request):
-    user_favorites = request.user.favorites.all()
+# Вспомогательные вьюшки
+async def asynh_get_recommended_games(request):
+    user_favorites = await get_user_favorites(request.user)
     user_favorites_str = ", ".join([favorite.game.name for favorite in user_favorites])
-    ai_rec_games = get_recommended_games(user_favorites_str)
+    ai_rec_games = await get_recommended_games(user_favorites_str)
     
-    return JsonResponse({"recommended_games":ai_rec_games}, status=200)
+    print(ai_rec_games)
+    recommended_games = []
+    
+    for game_name in ai_rec_games:
+        game = await find_game_by_name(game_name)
+        if not game:
+            description = await get_game_description(game_name)
+            genre_name = await get_game_genre(game_name)
+            genre = await get_or_create_genre(genre_name)
+            game = await create_game(game_name, genre, description)
+
+        data = await serialize_game_obj(game)
+        recommended_games.append(data)
+        
+    return JsonResponse({"recommended_games":recommended_games}, status=200)
 
 def add_comment(request):
     print(dict(request.POST.items()))
