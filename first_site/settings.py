@@ -131,3 +131,9 @@ AUTH_USER_MODEL = "userapp.MyUser"
 
 LOGIN_URL = "/user/login"
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-recommendations",
+    }
+}

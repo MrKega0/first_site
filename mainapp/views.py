@@ -7,6 +7,15 @@ from asgiref.sync import sync_to_async
 from django.http.response import JsonResponse
 from django.forms.models import model_to_dict
 
+import hashlib
+from django.core.cache import cache
+from asgiref.sync import sync_to_async
+
+# Обёртки для вызовов get/set кэша из async-кода:
+cache_get = sync_to_async(cache.get)
+cache_set = sync_to_async(cache.set)
+
+
 # Асинхронные вспомогательные функции, ну или подобие асинхронности
 @sync_to_async
 def get_user_favorites(user):
@@ -105,11 +114,16 @@ def recommended_games(request):
 async def asynh_get_recommended_games(request):
     user_favorites = await get_user_favorites(request.user)
     user_favorites_str = ", ".join([favorite.game.name for favorite in user_favorites])
+    key = f"recs:{request.user.id}:{hashlib.md5(user_favorites_str.encode()).hexdigest()}"
+    cached = await cache_get(key)
+    if cached is not None:
+        return JsonResponse({"recommended_games": cached}, status=200)
+
     ai_rec_names = await get_recommended_games(user_favorites_str)
     
     existing = await fetch_existing_games(ai_rec_names)  # { name: Game }
     new_names = [n for n in ai_rec_names if n not in existing]
-
+    
     new_objs = []
     if new_names:
         # get_full_recommendations_for вернёт list[{'name','genre','description'}] только для new_names
@@ -127,6 +141,10 @@ async def asynh_get_recommended_games(request):
             # найдём только что созданный объект
             g = next(x for x in new_objs if x.name == name)
             result.append(await serialize_game(g))
+    
+    # Делаем кэш
+    await cache_set(key, result, timeout=3600)
+    print("CACHE SET for key:", key)
         
     return JsonResponse({"recommended_games":result}, status=200)
 
