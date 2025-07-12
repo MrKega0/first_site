@@ -2,7 +2,7 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from .models import Genre, Game, Comment, Favorite
 from django.contrib.auth.decorators import login_required
 from userapp.views import logout_view
-from ai_bot.ai_bot import get_recommended_games, get_game_description, get_game_genre
+from ai_bot.ai_bot import get_recommended_games, get_game_description, get_game_genre, get_full_recommendations_for
 from asgiref.sync import sync_to_async
 from django.http.response import JsonResponse
 from django.forms.models import model_to_dict
@@ -22,15 +22,26 @@ def get_or_create_genre(genre_name):
     return genre
 
 @sync_to_async
-def create_game(name, genre, description):
+def create_game(name: str, genre_name: str, description: str) -> Game:
+    # Найдём или создадим жанр
+    genre, _ = Genre.objects.get_or_create(name__iexact=genre_name, defaults={'name': genre_name})
     return Game.objects.create(name=name, genre=genre, description=description)
 
 @sync_to_async
-def serialize_game_obj(game):
-    data = model_to_dict(game, fields=['id','name','description'])
-    data['genre'] = model_to_dict(game.genre, fields=['id','name'])
-    data['img'] = game.img.url if game.img else None
-    return data
+def serialize_game(game: Game) -> dict:
+    return {
+        'id':          game.id,
+        'name':        game.name,
+        'genre':       {'id': game.genre.id, 'name': game.genre.name},
+        'description': game.description,
+        'img':         game.img.url,
+    }
+
+@sync_to_async
+def fetch_existing_games(names: list[str]) -> dict:
+    # Вернём сразу словарь name → game
+    qs = Game.objects.filter(name__in=names).select_related('genre')
+    return { g.name: g for g in qs }
 
 
 #Основные вьюшки
@@ -87,10 +98,6 @@ def game_info(request, game_id):
     # game = Game.objects.create()
     # game.save()
 
-# В recommended_games.html сделать запрос к асинхронной вспомогательной вьюшке
-# которая должна делать запрос ai, получать список рекомендуемых игр,
-# подгружать имеющиеся игры из бд. А отсутствующим играм нужно делать запрос на получение
-# описания и добавлять в бд, а затем подгружать эти игры из бд
 def recommended_games(request):
     return render(request, "mainapp/recommended_games.html")
 
@@ -98,23 +105,30 @@ def recommended_games(request):
 async def asynh_get_recommended_games(request):
     user_favorites = await get_user_favorites(request.user)
     user_favorites_str = ", ".join([favorite.game.name for favorite in user_favorites])
-    ai_rec_games = await get_recommended_games(user_favorites_str)
+    ai_rec_names = await get_recommended_games(user_favorites_str)
     
-    print(ai_rec_games)
-    recommended_games = []
-    
-    for game_name in ai_rec_games:
-        game = await find_game_by_name(game_name)
-        if not game:
-            description = await get_game_description(game_name)
-            genre_name = await get_game_genre(game_name)
-            genre = await get_or_create_genre(genre_name)
-            game = await create_game(game_name, genre, description)
+    existing = await fetch_existing_games(ai_rec_names)  # { name: Game }
+    new_names = [n for n in ai_rec_names if n not in existing]
 
-        data = await serialize_game_obj(game)
-        recommended_games.append(data)
+    new_objs = []
+    if new_names:
+        # get_full_recommendations_for вернёт list[{'name','genre','description'}] только для new_names
+        new_data = await get_full_recommendations_for(new_names)
+        for d in new_data:
+            # создаём в БД
+            g = await create_game(d['name'], d['genre'], d['description'])
+            new_objs.append(g)
+
+    result = []
+    for name in ai_rec_names:
+        if name in existing:
+            result.append(await serialize_game(existing[name]))
+        else:
+            # найдём только что созданный объект
+            g = next(x for x in new_objs if x.name == name)
+            result.append(await serialize_game(g))
         
-    return JsonResponse({"recommended_games":recommended_games}, status=200)
+    return JsonResponse({"recommended_games":result}, status=200)
 
 def add_comment(request):
     print(dict(request.POST.items()))
