@@ -6,6 +6,9 @@ from ai_bot.ai_bot import get_recommended_games, get_game_description, get_game_
 from asgiref.sync import sync_to_async
 from django.http.response import JsonResponse
 from django.forms.models import model_to_dict
+from rest_framework import viewsets
+from .models import Game
+from .serializers import GameSerializer
 
 import hashlib
 from django.core.cache import cache
@@ -184,3 +187,8 @@ def toggle_favorite(request):
         print(e)
 
     return JsonResponse({"message":'что то пошло не так'}, status=400)
+
+# DRF
+class GameViewSet(viewsets.ModelViewSet):
+    queryset = Game.objects.all()
+    serializer_class = GameSerializer
