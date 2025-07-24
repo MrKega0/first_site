@@ -6,13 +6,10 @@ from ai_bot.ai_bot import get_recommended_games, get_game_description, get_game_
 from asgiref.sync import sync_to_async
 from django.http.response import JsonResponse
 from django.forms.models import model_to_dict
-<<<<<<< HEAD
 from rest_framework import viewsets
 from .models import Game
 from .serializers import GameSerializer
-=======
 from django.views.generic import ListView, DetailView
->>>>>>> e0ffbcbcc46ddb55e139434bcacaa741f5d53361
 
 import hashlib
 from django.core.cache import cache
