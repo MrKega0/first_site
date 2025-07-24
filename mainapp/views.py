@@ -6,9 +6,13 @@ from ai_bot.ai_bot import get_recommended_games, get_game_description, get_game_
 from asgiref.sync import sync_to_async
 from django.http.response import JsonResponse
 from django.forms.models import model_to_dict
+<<<<<<< HEAD
 from rest_framework import viewsets
 from .models import Game
 from .serializers import GameSerializer
+=======
+from django.views.generic import ListView, DetailView
+>>>>>>> e0ffbcbcc46ddb55e139434bcacaa741f5d53361
 
 import hashlib
 from django.core.cache import cache
@@ -57,58 +61,53 @@ def fetch_existing_games(names: list[str]) -> dict:
 
 
 #Основные вьюшки
-def index(request):
-    # request.session['a'] = 'a'
-    genre_filter = request.GET.get('genre')
-    game_filter = request.GET.get('game')
-    # print(f"Genre = {genre}")
-    games = Game.objects.all()
-
-    if genre_filter:
-        games = Game.objects.filter(genre_id=genre_filter)
-    if game_filter:
-        games = Game.objects.filter(name__contains=game_filter)
-
-    context = {'genres':Genre.objects.all(), 'games': games}
-    return render(request, "mainapp/index.html", context)
+class IndexView(ListView):
+    model = Game
+    template_name = "mainapp/index.html"
+    context_object_name = 'games'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['genres'] = Genre.objects.all()
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        genre_filter = self.request.GET.get('genre')
+        game_filter = self.request.GET.get('game')
+        if genre_filter:
+            queryset = queryset.filter(genre_id=genre_filter)
+        if game_filter:
+            queryset = queryset.filter(name__contains=game_filter)
+        return queryset
 
 def about_me(request):
     return render(request, "mainapp/about_me.html")
 
-# def sp(request):
-#     #print(request.session['a'])
-#     name = request.GET.get('name')
-#     last_name = request.GET.get('last_name')
-#     print(name)
-#     if not name:
-#         name = 'Безымянный лох'
-#     context = {'name':name, 'last_name':last_name }
-#     return render(request, "mainapp/sp.html", context)
-
-@login_required
-def game_info(request, game_id):
-    game = Game.objects.get(id=game_id)
-    # print(game.id in request.user.favorites.all().values_list("game",flat=True))
-    # print(request.user.favorites.all().filter(game = game).exists())
-    if request.method == "POST":
+class GameInfoView(DetailView):
+    model = Game
+    template_name = "mainapp/game_info.html"
+    context_object_name = 'game'
+    pk_url_kwarg = 'game_id'
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
         content = request.POST.get("comment_content","").strip()
         if content:
             Comment.objects.create(
                 user = request.user,
-                game = game,
+                game = self.object,
                 content = content
             )
-        return HttpResponseRedirect(request.path)
+        return HttpResponseRedirect(self.request.path)
     
-    comments = game.comments.all()
-    context = {
-        'game':game,
-        'comments': comments,
-        'is_fav': request.user.favorites.all().filter(game = game).exists()
-    }
-    return render(request, "mainapp/game_info.html", context)
-    # game = Game.objects.create()
-    # game.save()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        comments = self.object.comments.all()
+        context['is_fav'] = self.request.user.favorites.all().filter(game = self.object).exists()
+        context['comments'] = comments
+        return context
+        
 
 def recommended_games(request):
     return render(request, "mainapp/recommended_games.html")
