@@ -3,6 +3,13 @@ from django.urls import path, include
 from mainapp.views import IndexView, about_me,GameInfoView, add_comment, toggle_favorite, recommended_games, asynh_get_recommended_games
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework.routers import DefaultRouter
+from .views import GameViewSet
+
+router = DefaultRouter()
+router.register(r'game', GameViewSet, basename='game')
+
+urlpatterns = router.urls
 
 app_name = "mainapp"
 
